@@ -2,12 +2,14 @@ package others
 
 object SurrogatePairs {
   def main(args: Array[String]): Unit = {
-    println(s"length ==> ${"𠹭タロま".length}")
+    println(s"length ==> ${"𠹭タロま𤄃".length}")
     println(s"codePointCount ==> ${SurrogatePairsUtil.spLength("𠹭タロま")}")
-    println(s"offsetByCodePoints ==> ${"𠹭タロま".offsetByCodePoints(0, 3)}")
-    println(s"diffCount ==> ${SurrogatePairsUtil.getDiffCount("𠹭タロま", 4, 2)}")
+    println(s"offsetByCodePoints ==> ${"𠹭タロま𤄃".offsetByCodePoints(0, 3)}")
+    println(s"diffCount ==> ${SurrogatePairsUtil.getDiffCount("𠹭タロま𤄃", 4, 2)}")
 
-    println(s"Surrogate substring ==> ${SurrogatePairsUtil.subString("𠹭タロま", 0, 3)}")
+    println(s"Surrogate substring ==> ${SurrogatePairsUtil.subString("𠹭タロま𤄃", 0, 3)}")
+    println(s"Surrogate substring ==> ${SurrogatePairsUtil.substring("𠹭タロま𤄃", 0, 6)}")
+
   }
 
 }
@@ -21,9 +23,20 @@ object SurrogatePairsUtil {
   def substring(target: String, start: Int, end: Int): String = {
     val offsetEnd = target.offsetByCodePoints(0, end-1)
     val diff = getDiffCount(target, end - 1, offsetEnd)
+    val charArray = target.toCharArray
+    val codePoint = Character.codePointAt(charArray, end - 1)
+    val char = Character.toChars(codePoint)
 
-
-    ""
+    if (Character.isHighSurrogate(char(0))) {
+      println(s"char(0): HighSurrogate ==> ${char(0)}")
+      if (Character.isLowSurrogate(char(1))) {
+        println(s"char(1): LowSurrogate ==> ${char(1)}")
+      }
+//      sb.append(String.valueOf(Character.toChars(codePoint)))
+    } else {
+      println(s"char(0): HighSurrogate ==> ${char(0)}")
+    }
+    target.substring(start, end - 2)
   }
 
   def getDiffCount(target: String, end: Int, offsetEnd: Int) = {
