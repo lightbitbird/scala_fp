@@ -3,7 +3,7 @@ package pattern.mixin
 object MinimalCakePattern {
 
   def main(args: Array[String]): Unit = {
-    println(Controller.hogeService.run)
+    Controller.carService.run
 
     val something = Service.something
     something.doSomething
@@ -18,25 +18,25 @@ object MinimalCakePattern {
   trait NissanCarService extends CarService
 
   trait UsesCarService {
-    def hogeService: CarService
+    def carService: CarService
   }
 
   trait UsesAudiCarService {
-    def hogeService: CarService
+    def carService: CarService
   }
 
   trait MixInAudiCarService extends UsesCarService {
-    override val hogeService: CarService = new AudiCarService {
+    override val carService: CarService = new AudiCarService {
       override def run: Unit = println("The Audi car run.")
     }
   }
 
   trait UsesNissanCarService {
-    def hogeService: CarService
+    def carService: CarService
   }
 
   trait MixInCarNissanService extends UsesCarService {
-    override val hogeService: CarService = new NissanCarService {
+    override val carService: CarService = new NissanCarService {
       override def run: Unit = println("The Nissan car run.")
     }
   }
@@ -45,7 +45,6 @@ object MinimalCakePattern {
     extends UsesNissanCarService
       with UsesAudiCarService
 
-  // hogeService が被っているが、override が付いているので Scala の継承の仕様によって粛々と後勝ちになる
   object Controller
     extends MixInCarNissanService
       with MixInAudiCarService
