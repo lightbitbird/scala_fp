@@ -9,7 +9,7 @@ object SurrogatePairs {
 
     println(s"Surrogate substring ==> ${SurrogatePairsUtil.subString("𠹭タロま𤄃", 0, 3)}")
     println(s"Surrogate substring ==> ${SurrogatePairsUtil.substring("𠹭タロま𤄃", 0, 6)}")
-
+    println(s"Surrogate codePointSubstring ==> ${SurrogatePairsUtil.substringCodePoint("𠹭タロま𤄃", 0, 6)}")
   }
 
 }
@@ -46,6 +46,36 @@ object SurrogatePairsUtil {
     }
     else
       offsetEnd
+  }
+
+  def substringCodePoint(target: String, start: Int, end: Int): String = {
+    val charArray = target.toCharArray
+
+    val endIndex = {
+      if (target.length >= end) end - 1
+      else target.length - 1
+    }
+//    val offsetStart = target.offsetByCodePoints(0, start)
+//    val offsetEnd = target.offsetByCodePoints(0, endIndex)
+    val sb = new StringBuffer
+    var count = 0
+    for (i <- start until endIndex) {
+      val codePoint = Character.codePointAt(charArray, count)
+      val char = Character.toChars(codePoint)
+      if (Character.isHighSurrogate(char(0))) {
+        sb.append(String.valueOf(char))
+        println(s"highSurrogate --> ${i}")
+        count += 2
+      } else {
+        if (!Character.isLowSurrogate(char(0))) {
+          sb.append(String.valueOf(charArray(count)))
+          println(s"normal --> ${i}")
+          count += 1
+        }
+      }
+//      i += Character.charCount(codePoint)
+    }
+    sb.toString
   }
 
   def subString(target: String, startIndex: Int, endIndex: Int): String = {
