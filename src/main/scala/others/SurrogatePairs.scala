@@ -57,7 +57,7 @@ object SurrogatePairsUtil {
     }
 //    val offsetStart = target.offsetByCodePoints(0, start)
 //    val offsetEnd = target.offsetByCodePoints(0, endIndex)
-    val sb = new StringBuffer
+    val sb = new StringBuilder
     var count = 0
     for (i <- start until endIndex) {
       val codePoint = Character.codePointAt(charArray, count)
@@ -87,7 +87,7 @@ object SurrogatePairsUtil {
     val offsetEnd = target.offsetByCodePoints(0, endIndex)
     // コードポイント初期値
     var codePoint = 0
-    val sb = new StringBuffer
+    val sb = new StringBuilder
     var i = offsetStart
     while ( {
       i < offsetEnd
