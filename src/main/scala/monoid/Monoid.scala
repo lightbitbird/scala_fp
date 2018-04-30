@@ -23,7 +23,7 @@ object MonoidTest extends App {
   println(m3)
 
   val m = Monoid.productMonoid(Monoid.intAddition, Monoid.intAddition)
-  val p = ListFoldable.foldMap(List(1, 2, 3, 4))(a => (1, a))(m)
+  val p = ListFoldable.foldMap(List(1, 2, 3, 4))(a => (a, a+1))(m)
   println(p)
   val mean = p._2 / p._1.toDouble
   println(mean)
