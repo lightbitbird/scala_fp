@@ -8,10 +8,10 @@ trait Monoid[A] {
 trait OptionMonoid[A] extends Monoid[Option[A]] {
   def empty: Option[A] = None
   def combine(a1: Option[A], a2: Option[A]): Option[A] = ???
-//    def combine(a1: Option[A], a2: Option[A]): Option[A] = a1 orElse a2
 }
 
 object MonoidTest extends App {
+
   println(Monoid.intOptionMonoid.combine(Some(2), Some(3)))
   println(Monoid.intOptionMonoid.combine(Some(4), None))
 
@@ -23,6 +23,10 @@ object MonoidTest extends App {
   println(m3)
 
   val m = Monoid.productMonoid(Monoid.intAddition, Monoid.intAddition)
+  val p = ListFoldable.foldMap(List(1, 2, 3, 4))(a => (1, a))(m)
+  println(p)
+  val mean = p._2 / p._1.toDouble
+  println(mean)
 }
 
 
@@ -62,6 +66,11 @@ object Monoid {
     override def combine(x: Boolean, y: Boolean): Boolean = x && y
   }
 
+  def optionMonoid[A]: Monoid[Option[A]] = new OptionMonoid[A] {
+    override def empty = None
+    override def combine(a1: Option[A], a2: Option[A]): Option[A] = a1 orElse a2
+  }
+
   def intOptionMonoid: OptionMonoid[Int] = new OptionMonoid[Int] {
 //    override def combine(a1: Option[Int], a2: Option[Int]): Option[Int] = for {
 //      x <- a1
@@ -83,6 +92,30 @@ object Monoid {
       case (None, Some(y)) => Some(y)
       case (Some(x), Some(y)) => Some(x + y)
     }
+  }
+
+  def foldMapV[A, B](as: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
+    if (as.length == 0)
+      m.empty
+    else if (as.length == 1)
+      f(as(0))
+    else {
+      val (l, r) = as.splitAt(as.length / 2)
+      m.combine(foldMapV(l, m)(f), foldMapV(r, m)(f))
+    }
+
+  def dual[A](m: Monoid[A]): Monoid[A] = new Monoid[A] {
+    def empty = m.empty
+    def combine(x: A, y: A) = m.combine(y, x)
+  }
+
+  def firstOptionMonoid[A]: Monoid[Option[A]] = optionMonoid[A]
+
+  def lastOptionMonoid[A]: Monoid[Option[A]] = dual(firstOptionMonoid)
+
+  def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
+    def empty = (a: A) => a
+    def combine(f: A => A, g: A => A) = f compose g
   }
 
   def mapMergeMonoid[K, V](V: Monoid[V]): Monoid[Map[K, V]] = {
