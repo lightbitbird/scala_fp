@@ -1,15 +1,6 @@
 package parsers
 
-object ParserMain extends App {
-  println(BooleanParser("true included"))
-  println(BooleanParser("false included"))
-  println(BooleanParser("noboolean"))
-  println(PostalCodeParser("151-0093"))
-  println(PostalCodeParser("868-0110"))
-  println(PostalCodeParser("hoge"))
-}
-
-abstract class AbstractCombinator {
+abstract class Combinator {
 
   sealed trait ParseResult[+T]
 
@@ -27,37 +18,53 @@ abstract class AbstractCombinator {
 
   def s(literal: String): Parser[String] = string(literal)
 
-  def oneOf(chars: Seq[Char]): Parser[String] = input => {
-    if (input.length != 0 && chars.contains(input.head)) {
-      Success(input.head.toString, input.tail)
-    } else
-      Failure
-  }
+  /**
+   * select
+   *
+   * @param right 選択を行うパーサー
+   * @return
+   */
+  implicit class RichParser[T](val parser: Parser[T]) {
+    def |[U >: T](right: Parser[U]): Parser[U] = input => {
+      parser(input) match {
+        case success@Success(_, _) => success
+        case Failure => right(input)
+      }
+    }
 
-  def select[T, U >: T](one: => Parser[T], two: => Parser[U]): Parser[U] = input => {
-    one(input) match {
-      case success@Success(_, _) => success
-      case Failure => two(input)
+    /**
+     * combine
+     *
+     * @param right 逐次合成を行うパーサー
+     * @tparam U パーサーの結果の型
+     * @return
+     */
+    def ~[U](right: Parser[U]): Parser[(T, U)] = input => {
+      parser(input) match {
+        case Success(value1, next1) =>
+          right(next1) match {
+            case Success(value2, next2) =>
+              Success((value1, value2), next2)
+            case Failure => Failure
+          }
+        case Failure => Failure
+      }
+    }
+
+    /**
+     * map
+     *
+     * @param function 適用する関数
+     * @tparam U パーサーの結果の型
+     * @return
+     */
+    def ^^[U](func: T => U): Parser[U] = input => {
+      parser(input) match {
+        case Success(value, next) => Success(func(value), next)
+        case Failure => Failure
+      }
     }
   }
 
-  def combine[T, U](one: Parser[T], two: Parser[U]): Parser[(T, U)] = input => {
-    one(input) match {
-      case Success(value1, next1) =>
-        two(next1) match {
-          case Success(value2, next2) =>
-            Success((value1, value2), next2)
-          case Failure => Failure
-        }
-      case Failure => Failure
-    }
-  }
-
-  def map[T, U](parser: Parser[T], function: T => U): Parser[U] = input => {
-    parser(input) match {
-      case Success(value, next) => Success(function(value), next)
-      case Failure => Failure
-    }
-  }
 }
 

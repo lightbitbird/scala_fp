@@ -2,7 +2,7 @@ package parsers
 
 case class PostalCode(zoneCode: String, townCode: String)
 
-object PostalCodeParser extends AbstractCombinator {
+object PostalCodeParser extends AbstractXXXCombinator {
   def digit: Parser[String] = oneOf('0' to '9')
 
   def zoneCode: Parser[String] = map(combine(combine(digit, digit), digit), {
@@ -21,7 +21,7 @@ object PostalCodeParser extends AbstractCombinator {
 
 case class FullClassName(grade: String, className: String)
 
-object FullClassNameParser extends AbstractCombinator {
+object FullClassNameParser extends AbstractXXXCombinator {
   def digit: Parser[String] = oneOf('1' to '3')
 
   def className: Parser[String] = oneOf('A' to 'D')
@@ -31,7 +31,7 @@ object FullClassNameParser extends AbstractCombinator {
   })(input)
 }
 
-object BooleanParser extends AbstractCombinator {
+object BooleanParser extends AbstractXXXCombinator {
   def trueParser: Parser[Boolean] = map(s("true"), { _: String => true })
 
   def falseParser: Parser[Boolean] = map(s("false"), { _: String => false })
