@@ -2,6 +2,36 @@ package parsers
 
 case class PostalCode(zoneCode: String, townCode: String)
 
+object KeyWordParser extends Combinator {
+  def apply(input: String): ParseResult[String] = (s("true") | s("false")) (input)
+}
+
+object CombineParser extends Combinator {
+  def apply(input: String): ParseResult[(String, String)] = (s("[") ~ s("]")) (input)
+}
+
+object MapParser extends Combinator {
+  def apply(input: String): ParseResult[Int] = (s("1") ^^ {
+    _.toInt
+  }) (input)
+}
+
+object DisposeOneParser extends Combinator {
+  def apply(input: String): ParseResult[String] = (s("[") ~> s("true") <~ s("]")) (input)
+}
+
+object RepsepParser extends Combinator {
+  def apply(input: String): ParseResult[List[String]] = repsep(s("true"), s(","))(input)
+}
+
+object FloatParser extends Combinator {
+  def apply(input: String): ParseResult[String] = floatingPointNumber(input)
+}
+
+object StringParser extends Combinator {
+  def apply(input: String): ParseResult[String] = stringLiteral(input)
+}
+
 object PostalCodeParser extends AbstractXXXCombinator {
   def digit: Parser[String] = oneOf('0' to '9')
 
